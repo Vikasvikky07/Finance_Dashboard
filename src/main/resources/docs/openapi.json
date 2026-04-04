@@ -1,0 +1,250 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Finance Dashboard Backend API",
+    "version": "1.0.0",
+    "description": "Backend API for finance records, user access control, and dashboard analytics."
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8090"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  },
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "paths": {
+    "/api/auth/login": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Login and get a JWT",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["username", "password"],
+                "properties": {
+                  "username": { "type": "string", "example": "admin" },
+                  "password": { "type": "string", "example": "password" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "JWT issued successfully" },
+          "401": { "description": "Invalid credentials" },
+          "429": { "description": "Too many login attempts" }
+        }
+      }
+    },
+    "/actuator/health": {
+      "get": {
+        "tags": ["System"],
+        "summary": "Health check",
+        "security": [],
+        "responses": {
+          "200": { "description": "Application health" }
+        }
+      }
+    },
+    "/api/dashboard/summary": {
+      "get": {
+        "tags": ["Dashboard"],
+        "summary": "Get dashboard summary",
+        "responses": {
+          "200": { "description": "Summary data returned" },
+          "403": { "description": "Forbidden" }
+        }
+      }
+    },
+    "/api/records": {
+      "get": {
+        "tags": ["Records"],
+        "summary": "List financial records",
+        "parameters": [
+          { "name": "category", "in": "query", "schema": { "type": "string" } },
+          { "name": "search", "in": "query", "schema": { "type": "string" } },
+          { "name": "type", "in": "query", "schema": { "type": "string", "enum": ["INCOME", "EXPENSE"] } },
+          { "name": "startDate", "in": "query", "schema": { "type": "string", "format": "date" } },
+          { "name": "endDate", "in": "query", "schema": { "type": "string", "format": "date" } },
+          { "name": "page", "in": "query", "schema": { "type": "integer", "default": 0 } },
+          { "name": "size", "in": "query", "schema": { "type": "integer", "default": 10 } }
+        ],
+        "responses": {
+          "200": { "description": "Records returned" }
+        }
+      },
+      "post": {
+        "tags": ["Records"],
+        "summary": "Create a financial record",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["amount", "type", "category", "date"],
+                "properties": {
+                  "amount": { "type": "number", "example": 95.25 },
+                  "type": { "type": "string", "enum": ["INCOME", "EXPENSE"] },
+                  "category": { "type": "string", "example": "Internet" },
+                  "date": { "type": "string", "format": "date", "example": "2026-04-04" },
+                  "notes": { "type": "string", "example": "Monthly broadband bill" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Record created" },
+          "400": { "description": "Validation error" }
+        }
+      }
+    },
+    "/api/records/{id}": {
+      "get": {
+        "tags": ["Records"],
+        "summary": "Get a financial record",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer", "format": "int64" } }
+        ],
+        "responses": {
+          "200": { "description": "Record returned" },
+          "404": { "description": "Record not found" }
+        }
+      },
+      "put": {
+        "tags": ["Records"],
+        "summary": "Update a financial record",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer", "format": "int64" } }
+        ],
+        "responses": {
+          "200": { "description": "Record updated" }
+        }
+      },
+      "delete": {
+        "tags": ["Records"],
+        "summary": "Delete a financial record",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer", "format": "int64" } }
+        ],
+        "responses": {
+          "200": { "description": "Record soft deleted" }
+        }
+      }
+    },
+    "/api/users": {
+      "get": {
+        "tags": ["Users"],
+        "summary": "List users",
+        "responses": {
+          "200": { "description": "Users returned" }
+        }
+      },
+      "post": {
+        "tags": ["Users"],
+        "summary": "Create a user",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["name", "username", "email", "password", "roles", "status"],
+                "properties": {
+                  "name": { "type": "string" },
+                  "username": { "type": "string" },
+                  "email": { "type": "string", "format": "email" },
+                  "password": { "type": "string" },
+                  "roles": {
+                    "type": "array",
+                    "items": { "type": "string", "enum": ["VIEWER", "ANALYST", "ADMIN"] }
+                  },
+                  "status": { "type": "string", "enum": ["ACTIVE", "INACTIVE"] }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "User created" }
+        }
+      }
+    },
+    "/api/users/{id}": {
+      "get": {
+        "tags": ["Users"],
+        "summary": "Get a user",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer", "format": "int64" } }
+        ],
+        "responses": {
+          "200": { "description": "User returned" },
+          "404": { "description": "User not found" }
+        }
+      },
+      "put": {
+        "tags": ["Users"],
+        "summary": "Update a user",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer", "format": "int64" } }
+        ],
+        "responses": {
+          "200": { "description": "User updated" }
+        }
+      },
+      "delete": {
+        "tags": ["Users"],
+        "summary": "Delete a user",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer", "format": "int64" } }
+        ],
+        "responses": {
+          "200": { "description": "User soft deleted" }
+        }
+      }
+    },
+    "/api/users/{id}/password": {
+      "patch": {
+        "tags": ["Users"],
+        "summary": "Update a user password",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer", "format": "int64" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["password"],
+                "properties": {
+                  "password": { "type": "string", "example": "updatedPass123" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Password updated" }
+        }
+      }
+    }
+  }
+}
