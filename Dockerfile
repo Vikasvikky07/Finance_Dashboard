@@ -1,22 +1,22 @@
 FROM eclipse-temurin:17-jdk AS build
 
-WORKDIR /app
+ WORKDIR /app
 
-COPY gradlew gradlew
-COPY gradle gradle
-COPY build.gradle settings.gradle ./
-RUN chmod +x gradlew
+ COPY gradlew gradlew
+ COPY gradle gradle
+ COPY build.gradle settings.gradle ./
+ RUN chmod +x gradlew
 
-COPY src src
+ COPY src src
 
-RUN ./gradlew bootJar --no-daemon -x test
+ RUN ./gradlew bootJar --no-daemon -x test
 
-FROM eclipse-temurin:17-jre
+ FROM eclipse-temurin:17-jre-alpine
 
-WORKDIR /app
+ WORKDIR /app
 
-COPY --from=build /app/build/libs/*.jar app.jar
+ COPY --from=build /app/build/libs/*.jar app.jar
 
-EXPOSE 8080
+ EXPOSE 8080
 
-ENTRYPOINT ["sh", "-c", "java -jar app.jar --server.port=${PORT:-8090}"]
+ ENTRYPOINT ["java", "-jar", "app.jar"]
