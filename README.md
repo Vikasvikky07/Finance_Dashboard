@@ -11,8 +11,8 @@ The application is fully deployed on Render, making the APIs publicly accessible
 - [OpenAPI JSON](https://finance-dashboard-bwwk.onrender.com/v3/api-docs)
 
 ## API Base URL [use JWT to open]:
-- https://finance-dashboard-bwwk.onrender.com/
-- https://finance-dashboard-bwwk.onrender.com/actuator/health [health check]
+- https://finance-dashboard-bwwk.onrender.com/ [JWT token required]
+- https://finance-dashboard-bwwk.onrender.com/actuator/health [health check and JWT token not required]
 
 ## What It Covers
 - Deployed on Render with publicly accessible APIs for live testing.
