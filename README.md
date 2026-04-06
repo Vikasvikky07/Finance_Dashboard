@@ -4,22 +4,27 @@ Backend assessment project for a finance dashboard system with JWT authenticatio
 
 This project uses **PostgreSQL** for persistence and **Flyway** for automatic schema migration. Flyway will create and update the required tables automatically when the application starts.
 
+The application is fully deployed on Render, making the APIs publicly accessible without any local setup. This allows easy testing of endpoints and API documentation through live Swagger and OpenAPI links.
 ## API Docs
 
-- [Swagger UI](http://localhost:8090/swagger-ui/index.html)
-- [OpenAPI JSON](http://localhost:8090/v3/api-docs)
+- [Swagger UI](https://finance-dashboard-bwwk.onrender.com/swagger-ui/index.html)
+- [OpenAPI JSON](https://finance-dashboard-bwwk.onrender.com/v3/api-docs)
+
+## API Base URL [use JWT to open]:
+- https://finance-dashboard-bwwk.onrender.com/
+- https://finance-dashboard-bwwk.onrender.com/actuator/health [health check]
 
 ## What It Covers
-
+- Deployed on Render with publicly accessible APIs for live testing.
+- Login rate limiting
+- PostgreSQL persistence with Flyway migrations
+- Swagger/OpenAPI docs and a Postman collection
 - User management with create, read, update, delete, password update, active/inactive status, and multi-role assignment
 - JWT authentication with username and password
 - Financial record CRUD with filtering by category, type, date range, text search, and pagination
 - Dashboard summary API with total income, total expenses, net balance, category totals, recent activity, and monthly trends
 - Validation and structured JSON error handling
 - Soft delete for users and financial records
-- Login rate limiting
-- PostgreSQL persistence with Flyway migrations
-- Swagger/OpenAPI docs and a Postman collection
 
 ## Stack
 
@@ -31,6 +36,7 @@ This project uses **PostgreSQL** for persistence and **Flyway** for automatic sc
 - PostgreSQL
 - H2 for tests
 - Static OpenAPI spec with hosted Swagger UI
+- Render
 
 ## Access Model
 
@@ -41,13 +47,11 @@ This project uses **PostgreSQL** for persistence and **Flyway** for automatic sc
 Users can hold more than one role at the same time through the `user_roles` join table.
 
 
-Environment variables:
+Environment variables [local setup]:
 
 - `DB_URL` default: `jdbc:postgresql://localhost:5432/finance_dashboard_v2`
 - `DB_USERNAME` default: `postgres`
 - `DB_PASSWORD` default: `9908`
-- `JWT_SECRET` default: `finance-dashboard-super-secret-key-should-be-at-least-32-bytes`
-- `JWT_EXPIRATION_SECONDS` default: `3600`
 
 
 Create the database:
@@ -56,7 +60,7 @@ Create the database:
 CREATE DATABASE finance_dashboard_v2;
 ```
 
-Default connection values:
+Default connection values [local setup]:
 
 - `DB_URL=jdbc:postgresql://localhost:5432/finance_dashboard_v2`
 - `DB_USERNAME=postgres`
@@ -96,7 +100,7 @@ All seeded users use password `password`.
 Login:
 
 ```bash
-curl -X POST http://localhost:8090/api/auth/login \
+curl -X POST https://finance-dashboard-bwwk.onrender.com/api/auth/login \
   -H "Content-Type: application/json" \
   -d "{\"username\":\"admin\",\"password\":\"password\"}"
 ```
@@ -104,7 +108,7 @@ curl -X POST http://localhost:8090/api/auth/login \
 Use the returned token:
 
 ```bash
-curl -H "Authorization: Bearer <token>" http://localhost:8090/api/dashboard/summary
+curl -H "Authorization: Bearer <token>" https://finance-dashboard-bwwk.onrender.com/api/dashboard/summary
 ```
 
 ## Example Endpoint Flow
@@ -114,19 +118,19 @@ After authentication, you can hit the main endpoints.
 Get dashboard summary:
 
 ```bash
-curl -H "Authorization: Bearer <token>" http://localhost:8090/api/dashboard/summary
+curl -H "Authorization: Bearer <token>" https://finance-dashboard-bwwk.onrender.com/api/dashboard/summary
 ```
 
 Get paginated and searchable records:
 
 ```bash
-curl -H "Authorization: Bearer <token>" "http://localhost:8090/api/records?search=software&type=EXPENSE&page=0&size=10"
+curl -H "Authorization: Bearer <token>" "https://finance-dashboard-bwwk.onrender.com/api/records?search=software&type=EXPENSE&page=0&size=10"
 ```
 
 Create a record:
 
 ```bash
-curl -X POST http://localhost:8090/api/records \
+curl -X POST https://finance-dashboard-bwwk.onrender.com/api/records \
   -H "Authorization: Bearer <token>" \
   -H "Content-Type: application/json" \
   -d "{\"amount\":95.25,\"type\":\"EXPENSE\",\"category\":\"Internet\",\"date\":\"2026-04-04\",\"notes\":\"Monthly broadband bill\"}"
@@ -135,7 +139,7 @@ curl -X POST http://localhost:8090/api/records \
 Create a user:
 
 ```bash
-curl -X POST http://localhost:8090/api/users \
+curl -X POST https://finance-dashboard-bwwk.onrender.com/api/users \
   -H "Authorization: Bearer <token>" \
   -H "Content-Type: application/json" \
   -d "{\"name\":\"Finance Manager\",\"username\":\"manager\",\"email\":\"manager@finance.local\",\"password\":\"strongPass123\",\"roles\":[\"ANALYST\",\"VIEWER\"],\"status\":\"ACTIVE\"}"
